@@ -1,0 +1,54 @@
+# MongoDB Atlas Connection String Template
+
+## Your Information:
+- Project Name: ResqueAid (or your chosen name)
+- Cluster Name: Cluster0 (or your chosen name)
+- Database Name: resqueaid
+- Collection: users
+- Database User: resqueaid_user (or your chosen username)
+- Password: [YOUR PASSWORD HERE]
+
+## Connection String Format:
+mongodb+srv://USERNAME:PASSWORD@CLUSTER.mongodb.net/DATABASE?retryWrites=true&w=majority
+
+## Your Connection String (FILL THIS IN):
+mongodb+srv://resqueaid_user:YOUR_PASSWORD_HERE@cluster0.xxxxx.mongodb.net/resqueaid?retryWrites=true&w=majority
+
+## Example (filled in):
+mongodb+srv://resqueaid_user:MyPass123@cluster0.abcd1.mongodb.net/resqueaid?retryWrites=true&w=majority
+
+## Steps to Update:
+1. Copy your connection string from Atlas
+2. Replace <password> with your actual password
+3. Add /resqueaid before the ?
+4. Paste it in your .env file:
+
+MONGODB_URI=mongodb+srv://resqueaid_user:YOUR_PASSWORD@cluster0.xxxxx.mongodb.net/resqueaid?retryWrites=true&w=majority
+JWT_SECRET=resqueaid_super_secret_key_change_in_production_2025
+PORT=5001
+NODE_ENV=development
+
+## How to Test:
+1. Update .env file
+2. Restart backend: cd /Applications/Resqueaid && npm run dev
+3. Look for: ✅ MongoDB Connected Successfully
+4. Register a new user in frontend
+5. Check Atlas dashboard: Browse Collections → resqueaid → users
+6. You should see your new user! 🎉
+
+## Troubleshooting:
+- "bad auth" → Password is wrong or has special characters that need URL encoding
+- "IP not whitelisted" → Add 0.0.0.0/0 in Network Access
+- "connection timeout" → Check internet connection or cluster is still deploying
+- "ENOTFOUND" → Connection string is incorrect
+
+## URL Encoding Special Characters:
+If your password has special characters, encode them:
+@ → %40
+: → %3A
+/ → %2F
+? → %3F
+# → %23
+[ → %5B
+] → %5D
+
