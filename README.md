@@ -1,21 +1,21 @@
-# 🆘 DisAID - Disaster Relief AI Application
+# DisAID - Disaster Relief AI Application
 
 An intelligent disaster relief application that uses AI to classify emergency requests and connect users with nearby assistance using real-time location services.
 
 ---
 
-## ✨ Features
+##  Features
 
-- **🤖 AI-Powered Classification** - Uses Google Gemini AI to analyze and categorize help requests
-- **🚨 Emergency Detection** - Automatically identifies and prioritizes life-threatening situations  
-- **📍 Smart Location Services** - Finds nearby facilities using GPS + Gemini AI + OpenStreetMap
-- **🗺️ Google Maps Integration** - Embedded maps and automatic turn-by-turn navigation
-- **📞 Emergency Contacts** - Context-specific emergency phone numbers with one-tap dialing
-- **💾 Lightweight Database** - SQLite for fast, network-independent operation
+- ** AI-Powered Classification** - Uses Google Gemini AI to analyze and categorize help requests
+- ** Emergency Detection** - Automatically identifies and prioritizes life-threatening situations  
+- ** Smart Location Services** - Finds nearby facilities using GPS + Gemini AI + OpenStreetMap
+- ** Google Maps Integration** - Embedded maps and automatic turn-by-turn navigation
+- ** Emergency Contacts** - Context-specific emergency phone numbers with one-tap dialing
+- ** Lightweight Database** - SQLite for fast, network-independent operation
 
 ---
 
-## 🏗️ Tech Stack
+## Tech Stack
 
 **Backend:**
 - Node.js + Express
@@ -34,7 +34,7 @@ An intelligent disaster relief application that uses AI to classify emergency re
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -251,19 +251,19 @@ MIT License - feel free to use for hackathons, student projects, or commercial a
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
-This project was built with ❤️ for disaster relief. Contributions welcome!
+This project was built for disaster relief. Contributions welcome!
 
 ---
 
-## 🎉 Perfect For
+## Perfect For
 
-- ✅ Hackathons (free + impressive!)
-- ✅ Student projects (no billing required)
-- ✅ MVPs (validate ideas fast)
-- ✅ Non-profits (limited budgets)
-- ✅ Portfolio projects (production-quality UX)
+-  Hackathons (free + impressive!)
+-  Student projects (no billing required)
+-  MVPs (validate ideas fast)
+-  Non-profits (limited budgets)
+- Portfolio projects (production-quality UX)
 
 ---
 
@@ -271,4 +271,4 @@ This project was built with ❤️ for disaster relief. Contributions welcome!
 
 ---
 
-Made with 🤖 AI and 💚 for helping people in need.
+Made for helping people in need.
