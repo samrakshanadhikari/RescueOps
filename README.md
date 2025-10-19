@@ -64,7 +64,7 @@ GEMINI_API_KEY=your-gemini-api-key-here
 
 **Frontend (`frontend/.env`):**
 ```env
-REACT_APP_API_URL=http://localhost:5001/api
+REACT_APP_API_URL=https://disaid-frontend.onrender.com
 ```
 
 ### Run the Application
