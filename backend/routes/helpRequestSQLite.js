@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const HelpRequest = require('../models/HelpRequestSQLite');
-const auth = require('../middleware/auth');
 
 // @route   POST /api/help-request
 // @desc    Submit a new help request

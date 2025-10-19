@@ -6,7 +6,6 @@ const {
   processHelpRequest, 
   processPendingRequests 
 } = require('../controllers/geminiController');
-const auth = require('../middleware/auth'); // Optional: protect these routes
 
 /**
  * @route   POST /api/gemini/analyze
@@ -70,7 +69,7 @@ router.post('/process-batch', async (req, res) => {
  */
 router.get('/stats', async (req, res) => {
   try {
-    const HelpRequest = require('../models/HelpRequest');
+    const HelpRequest = require('../models/HelpRequestSQLite');
     
     const stats = await HelpRequest.aggregate([
       {

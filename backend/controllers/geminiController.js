@@ -1,5 +1,5 @@
 // Google Gemini AI Integration for Disaster Aid Classification
-const HelpRequest = require('../models/HelpRequest');
+const HelpRequest = require('../models/HelpRequestSQLite');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 // Initialize the GoogleGenerativeAI client with the API key from environment variables
