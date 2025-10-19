@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const User = require('../models/UserSQLite');
 
-// Middleware to protect routes
+// Middleware to protect routes (SQLite version)
 const protect = async (req, res, next) => {
   let token;
 
@@ -14,12 +14,15 @@ const protect = async (req, res, next) => {
       // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      // Get user from token
-      req.user = await User.findById(decoded.id).select('-password');
+      // Get user from token (SQLite version)
+      req.user = await User.findById(decoded.id);
 
       if (!req.user) {
         return res.status(401).json({ message: 'User not found' });
       }
+
+      // Remove password from user object
+      delete req.user.password;
 
       next();
     } catch (error) {
@@ -46,4 +49,5 @@ const authorize = (...roles) => {
 };
 
 module.exports = { protect, authorize };
+
 

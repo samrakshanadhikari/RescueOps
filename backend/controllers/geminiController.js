@@ -87,7 +87,7 @@ Rules:
 Respond with ONLY ONE keyword in brackets, nothing else.`;
 
     // Call Gemini API
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const analysisResultText = response.text();

@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const HelpRequest = require('../models/HelpRequest');
+const HelpRequest = require('../models/HelpRequestSQLite');
 const auth = require('../middleware/auth');
 
 // @route   POST /api/help-request
 // @desc    Submit a new help request
-// @access  Public (can be changed to Private with auth middleware)
+// @access  Public
 router.post('/', async (req, res) => {
   try {
     const { situation, wordCount } = req.body;
@@ -24,23 +24,16 @@ router.post('/', async (req, res) => {
     }
 
     // Create new help request
-    const helpRequest = new HelpRequest({
+    const helpRequest = HelpRequest.create({
       situation: situation.trim(),
       wordCount,
-      status: 'pending', // Will be picked up by Gemini controller later
     });
-
-    await helpRequest.save();
 
     res.status(201).json({
       message: 'Help request submitted successfully',
-      requestId: helpRequest._id,
+      requestId: helpRequest.id,
       status: helpRequest.status,
     });
-
-    // TODO: Trigger Gemini processing
-    // You can add this later in geminiController.js:
-    // processWithGemini(helpRequest._id);
     
   } catch (error) {
     console.error('Error submitting help request:', error);
@@ -51,15 +44,11 @@ router.post('/', async (req, res) => {
 });
 
 // @route   GET /api/help-request/pending
-// @desc    Get all pending help requests (for Gemini processing)
-// @access  Private (should be restricted to admin/system)
+// @desc    Get all pending help requests
+// @access  Public
 router.get('/pending', async (req, res) => {
   try {
-    const pendingRequests = await HelpRequest.find({ 
-      status: 'pending' 
-    })
-      .sort({ createdAt: 1 }) // Oldest first
-      .limit(50); // Process in batches
+    const pendingRequests = HelpRequest.findPending(50);
 
     res.json({
       count: pendingRequests.length,
@@ -78,7 +67,7 @@ router.get('/pending', async (req, res) => {
 // @access  Public
 router.get('/:id', async (req, res) => {
   try {
-    const helpRequest = await HelpRequest.findById(req.params.id);
+    const helpRequest = HelpRequest.findById(req.params.id);
 
     if (!helpRequest) {
       return res.status(404).json({ 
@@ -96,28 +85,21 @@ router.get('/:id', async (req, res) => {
 });
 
 // @route   PUT /api/help-request/:id/classify
-// @desc    Update help request with Gemini classification
-// @access  Private (for Gemini controller)
+// @desc    Update help request with classification
+// @access  Private
 router.put('/:id/classify', async (req, res) => {
   try {
     const { classification } = req.body;
 
-    const helpRequest = await HelpRequest.findByIdAndUpdate(
-      req.params.id,
-      {
-        $set: {
-          classification,
-          status: 'classified',
-        },
-      },
-      { new: true }
-    );
+    const updated = HelpRequest.updateClassification(req.params.id, classification);
 
-    if (!helpRequest) {
+    if (!updated) {
       return res.status(404).json({ 
         message: 'Help request not found' 
       });
     }
+
+    const helpRequest = HelpRequest.findById(req.params.id);
 
     res.json({
       message: 'Classification updated successfully',
@@ -133,19 +115,12 @@ router.put('/:id/classify', async (req, res) => {
 
 // @route   GET /api/help-request
 // @desc    Get all help requests with filters
-// @access  Private (admin)
+// @access  Private
 router.get('/', async (req, res) => {
   try {
     const { status, category, urgency } = req.query;
     
-    const filter = {};
-    if (status) filter.status = status;
-    if (category) filter['classification.category'] = category;
-    if (urgency) filter['classification.urgency'] = urgency;
-
-    const helpRequests = await HelpRequest.find(filter)
-      .sort({ createdAt: -1 })
-      .limit(100);
+    const helpRequests = HelpRequest.findAll({ status, category, urgency }, 100);
 
     res.json({
       count: helpRequests.length,
@@ -160,4 +135,5 @@ router.get('/', async (req, res) => {
 });
 
 module.exports = router;
+
 

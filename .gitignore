@@ -1,10 +1,50 @@
+# Dependencies
 node_modules/
-.env
-.env.atlas
-.DS_Store
 frontend/node_modules/
-frontend/build/
-*.log
-/tmp/
-.pid
+backend/node_modules/
 
+# Environment Variables (IMPORTANT - Contains API Keys!)
+.env
+.env.*
+backend/.env
+frontend/.env
+
+# Database Files
+*.db
+*.sqlite
+*.sqlite3
+disaid.db
+
+# Logs
+*.log
+logs/
+backend/*.log
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Build Files
+frontend/build/
+frontend/dist/
+backend/dist/
+
+# Temporary Files
+tmp/
+temp/
+.tmp/
+.cache/
+*.pid
+
+# IDE Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Package Lock Files (optional - some prefer to commit these)
+# Uncomment if you don't want to track package-lock.json
+# package-lock.json
+# frontend/package-lock.json
+# backend/package-lock.json

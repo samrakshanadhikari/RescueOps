@@ -1,80 +1,78 @@
-# ResQueAid - Disaster Assistance Application
+# 🆘 DisAID - Disaster Relief AI Application
 
-A full-stack disaster assistance aid application built with React, Node.js, Express.js, and MongoDB.
+An intelligent disaster relief application that uses AI to classify emergency requests and connect users with nearby assistance using real-time location services.
 
-## 🚀 Features
+---
 
-- **Secure Authentication**: User registration and login with JWT tokens
-- **Password Security**: Bcrypt password hashing for secure credential storage
-- **Beautiful UI**: Modern, responsive design with disaster aid theme
-- **MongoDB Integration**: Secure user data storage
-- **Role-Based Access**: Support for users, volunteers, and admins
+## ✨ Features
 
-## 🛠️ Tech Stack
+- **🤖 AI-Powered Classification** - Uses Google Gemini AI to analyze and categorize help requests
+- **🚨 Emergency Detection** - Automatically identifies and prioritizes life-threatening situations  
+- **📍 Smart Location Services** - Finds nearby facilities using GPS + Gemini AI + OpenStreetMap
+- **🗺️ Google Maps Integration** - Embedded maps and automatic turn-by-turn navigation
+- **📞 Emergency Contacts** - Context-specific emergency phone numbers with one-tap dialing
+- **💾 Lightweight Database** - SQLite for fast, network-independent operation
 
-### Frontend
-- React 18
-- Axios for API calls
-- Context API for state management
-- Modern CSS with gradient designs
+---
 
-### Backend
-- Node.js
-- Express.js
-- MongoDB with Mongoose
-- JWT for authentication
-- Bcrypt for password hashing
-- Express Validator for input validation
+## 🏗️ Tech Stack
 
-## 📦 Installation
+**Backend:**
+- Node.js + Express
+- SQLite (database)
+- Google Gemini AI (classification & suggestions)
+- OpenStreetMap Nominatim (geocoding)
+- JWT (authentication)
+
+**Frontend:**
+- React.js
+- React Router
+- Axios
+- Google Maps (free embed + URL scheme)
+
+**All APIs are FREE!** Perfect for demos and MVPs.
+
+---
+
+## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js (v14 or higher)
-- MongoDB (local or MongoDB Atlas)
+- Gemini API Key (free from: https://makersuite.google.com/app/apikey)
 
-### Setup Instructions
+### Installation
 
-1. **Clone and Install Dependencies**
 ```bash
-# Install backend dependencies
+# 1. Install backend dependencies
+cd backend
 npm install
 
-# Install frontend dependencies
-cd frontend
+# 2. Install frontend dependencies
+cd ../frontend
 npm install
-cd ..
 ```
 
-2. **Configure Environment Variables**
+### Configuration
 
-Create a `.env` file in the root directory (already created):
-```
-MONGODB_URI=mongodb://localhost:27017/resqueaid
-JWT_SECRET=your_jwt_secret_key_change_this_in_production
-PORT=5000
-NODE_ENV=development
-```
-
-**Important**: Change the `JWT_SECRET` to a secure random string in production!
-
-3. **Start MongoDB**
-
-Make sure MongoDB is running on your system:
-```bash
-# macOS (if installed via Homebrew)
-brew services start mongodb-community
-
-# Or use Docker
-docker run -d -p 27017:27017 --name mongodb mongo
+**Backend (`backend/.env`):**
+```env
+PORT=5001
+JWT_SECRET=your-secret-key-here
+GEMINI_API_KEY=your-gemini-api-key-here
 ```
 
-4. **Run the Application**
+**Frontend (`frontend/.env`):**
+```env
+REACT_APP_API_URL=http://localhost:5001/api
+```
 
-Open two terminal windows:
+### Run the Application
 
 **Terminal 1 - Backend:**
 ```bash
-npm run dev
+cd backend
+node serverSQLite.js
 ```
 
 **Terminal 2 - Frontend:**
@@ -83,120 +81,194 @@ cd frontend
 npm start
 ```
 
-The application will be available at:
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:5000
+Open http://localhost:3000 in your browser.
 
-## 🔐 Security Features
+---
 
-### Password Security
-- Passwords are hashed using bcrypt with salt rounds (10)
-- Passwords are never stored in plain text
-- Password validation (minimum 6 characters)
+## 📖 How It Works
 
-### JWT Authentication
-- Secure token-based authentication
-- Tokens expire after 30 days
-- Tokens stored in localStorage (client-side)
-- Authorization header used for protected routes
+1. **User submits a help request** (text description of their situation)
+2. **Gemini AI classifies** the request as emergency/non-emergency and categorizes it (medical/shelter/police)
+3. **Browser gets user's GPS location**
+4. **System finds nearby facilities:**
+   - Gets city name from coordinates (OpenStreetMap)
+   - Gemini suggests real organizations in that city
+   - Geocodes addresses to precise coordinates (OpenStreetMap)
+5. **Results displayed:**
+   - **Emergency:** Call simulation + emergency numbers + immediate guidance
+   - **Non-Emergency:** Embedded map + auto-opens Google Maps navigation + list of resources
 
-### Input Validation
-- Email format validation
-- Password strength requirements
-- Server-side validation using express-validator
+---
 
-## 📝 API Endpoints
+## 🗂️ Project Structure
 
-### Authentication Routes
-
-**POST /api/auth/register**
-- Register a new user
-- Body: `{ name, email, password, phone, role }`
-- Returns: JWT token and user data
-
-**POST /api/auth/login**
-- Login existing user
-- Body: `{ email, password }`
-- Returns: JWT token and user data
-
-**GET /api/auth/me**
-- Get current user data
-- Requires: Authorization header with JWT token
-- Returns: User data
-
-## 🗄️ Database Schema
-
-### User Model
-```javascript
-{
-  name: String (required),
-  email: String (required, unique),
-  password: String (required, hashed),
-  role: String (enum: ['user', 'volunteer', 'admin']),
-  phone: String,
-  location: {
-    type: String,
-    coordinates: [Number],
-    address: String
-  },
-  createdAt: Date
-}
+```
+Resqueaid/
+├── backend/
+│   ├── controllers/
+│   │   ├── geminiController.js    # AI classification logic
+│   │   └── mapController.js       # Location services
+│   ├── routes/
+│   │   ├── authSQLite.js         # Authentication routes
+│   │   ├── helpRequestSQLite.js  # Help request routes
+│   │   ├── geminiRoutes.js       # AI analysis routes
+│   │   └── mapRoutes.js          # Map/location routes
+│   ├── models/
+│   │   ├── UserSQLite.js         # User model
+│   │   └── HelpRequestSQLite.js  # Help request model
+│   ├── middleware/
+│   │   └── authSQLite.js         # JWT authentication
+│   ├── database/
+│   │   └── sqlite.js             # Database setup
+│   └── serverSQLite.js           # Main server file
+│
+├── frontend/
+│   └── src/
+│       ├── components/
+│       │   ├── Auth.js           # Login/Registration
+│       │   ├── HelpRequest.js    # Request submission
+│       │   ├── ResultsPage.js    # Non-emergency results
+│       │   └── EmergencyPage.js  # Emergency page
+│       ├── services/
+│       │   └── api.js            # API client
+│       └── App.js                # Main app component
+│
+└── README.md
 ```
 
-## 🎨 UI Features
+---
 
-- Responsive design for mobile and desktop
-- Beautiful gradient backgrounds
-- Smooth animations and transitions
-- Form validation with error messages
-- Loading states for better UX
+## 🎯 API Endpoints
 
-## 📱 User Roles
+### Authentication
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login user
 
-1. **User**: Person in need of disaster assistance
-2. **Volunteer**: Helper who provides aid
-3. **Admin**: System administrator (for future features)
+### Help Requests
+- `POST /api/help-request` - Submit help request (stores in database)
 
-## 🔄 How Authentication Works
+### AI Classification
+- `POST /api/gemini/analyze` - Analyze text and classify request
 
-1. **Registration**:
-   - User fills registration form
-   - Backend validates input
-   - Password is hashed with bcrypt
-   - User is saved to MongoDB
-   - JWT token is generated and sent to client
-   - Client stores token in localStorage
+### Location Services
+- `POST /api/map/nearby` - Find nearby facilities (protected route)
 
-2. **Login**:
-   - User enters credentials
-   - Backend verifies email exists
-   - Password is compared with hashed version
-   - JWT token is generated if valid
-   - Client stores token and redirects to dashboard
+---
 
-3. **Protected Routes**:
-   - Client sends JWT token in Authorization header
-   - Backend verifies token
-   - User data is returned if valid
+## 🗺️ How Maps Work (Without Paid APIs!)
 
-## 🚀 Next Steps
+### 1. Embedded Map
+Uses Google's free iframe embed:
+```
+https://www.google.com/maps?q=LAT,LNG&output=embed&z=15
+```
+No API key needed!
 
-You can extend this application with:
-- Emergency request system
-- Real-time notifications
-- Map integration for disaster zones
-- Resource management
-- Volunteer coordination
-- Admin dashboard
-- Password reset functionality
-- Email verification
-- Two-factor authentication
+### 2. Navigation
+Uses Google Maps URL scheme:
+```
+https://www.google.com/maps/dir/?api=1&origin=LAT,LNG&destination=ADDRESS
+```
+Opens full Google Maps with turn-by-turn directions.
 
-## 📄 License
+### 3. Location Suggestions
+- **Gemini AI** suggests real organizations based on user's city
+- **OpenStreetMap** converts addresses to coordinates (free, no key!)
+- **Browser Geolocation API** gets user's GPS position
 
-MIT
+**Result:** Professional mapping experience with zero API costs! 🎉
 
-## 👨‍💻 Development
+---
 
-This is a starter template. Feel free to customize and extend it for your specific needs!
+## 🐛 Troubleshooting
 
+### Port Already in Use
+```bash
+# Kill process on port 5001
+lsof -ti:5001 | xargs kill -9
+
+# Kill process on port 3000
+lsof -ti:3000 | xargs kill -9
+```
+
+### Gemini API Not Working
+1. Verify API key in `backend/.env`
+2. Check key is valid at https://makersuite.google.com/app/apikey
+3. Ensure no extra spaces in `.env` file
+
+### Maps Not Showing
+1. Check browser console (F12) for errors
+2. Allow location access when prompted
+3. Disable VPN for accurate GPS
+4. Try clearing browser cache
+
+### Location Override (for testing)
+```javascript
+// Run in browser console
+localStorage.setItem("userLocation", JSON.stringify({
+  latitude: 30.2672,  // Austin, TX
+  longitude: -97.7431
+}));
+location.reload();
+```
+
+---
+
+## 🎓 For Developers
+
+### Classification Keywords
+
+**Emergency indicators:** urgent, emergency, critical, dying, bleeding, immediately, help me, life-threatening
+
+**Categories:**
+- **Medical:** doctor, hospital, medical, injury, sick, pain, health
+- **Shelter:** homeless, shelter, housing, home, place to stay
+- **Police:** police, crime, theft, assault, safety, danger
+
+### Adding New Features
+
+The codebase is modular and easy to extend:
+- Add new routes in `backend/routes/`
+- Add new controllers in `backend/controllers/`
+- Add new React components in `frontend/src/components/`
+- Update AI prompts in `geminiController.js` or `mapController.js`
+
+### Environment Variables
+
+Required:
+- `GEMINI_API_KEY` - For AI classification and location suggestions
+- `JWT_SECRET` - For user authentication
+
+Optional:
+- `GOOGLE_MAPS_API_KEY` - Enhanced maps (works without it!)
+- `PORT` - Backend port (default: 5001)
+
+---
+
+## 📝 License
+
+MIT License - feel free to use for hackathons, student projects, or commercial applications!
+
+---
+
+## 🤝 Contributing
+
+This project was built with ❤️ for disaster relief. Contributions welcome!
+
+---
+
+## 🎉 Perfect For
+
+- ✅ Hackathons (free + impressive!)
+- ✅ Student projects (no billing required)
+- ✅ MVPs (validate ideas fast)
+- ✅ Non-profits (limited budgets)
+- ✅ Portfolio projects (production-quality UX)
+
+---
+
+**Need help? Check `SETUP_FOR_FRIEND.md` for detailed setup instructions or `SETUP_INSTRUCTIONS.md` for troubleshooting guides.**
+
+---
+
+Made with 🤖 AI and 💚 for helping people in need.
