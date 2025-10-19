@@ -1,9 +1,14 @@
 const Database = require('better-sqlite3');
 const path = require('path');
+const fs = require('fs');
+
+// Determine database path based on environment
+const dbPath = process.env.NODE_ENV === 'production' && fs.existsSync('/var/data')
+  ? '/var/data/disaid.db'  // Production path (mounted disk on Render)
+  : path.join(__dirname, '../../disaid.db');  // Development path
 
 // Create or open SQLite database
-const dbPath = path.join(__dirname, '../../disaid.db');
-const db = new Database(dbPath, { verbose: console.log });
+const db = new Database(dbPath, { verbose: process.env.NODE_ENV !== 'production' ? console.log : null });
 
 // Enable foreign keys
 db.pragma('foreign_keys = ON');
