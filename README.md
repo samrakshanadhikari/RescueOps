@@ -81,7 +81,7 @@ cd frontend
 npm start
 ```
 
-Open http://localhost:3000 in your browser.
+Open https://disaid-frontend.onrender.com/ in your browser.
 
 ---
 
