@@ -25,6 +25,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/help-request', require('./routes/helpRequest'));
 app.use('/api/gemini', require('./routes/geminiRoutes'));
+app.use('/api/map', require('./routes/mapRoutes'));
 
 // Health check route
 app.get('/', (req, res) => {

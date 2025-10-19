@@ -24,56 +24,101 @@ const mapKeywordToCategory = (keyword) => {
 };
 
 /**
- * Analyzes text using Gemini API
+ * Simple fallback classifier (used when Gemini API fails)
+ * @param {String} userText - The text to analyze
+ * @returns {Object} Classification result
+ */
+const analyzeWithFallback = (userText) => {
+  const text = userText.toLowerCase();
+  
+  // Simple analysis: Just look for basic emergency indicators
+  const hasEmergency = /help|emergency|urgent|critical|immediately|dying|trapped|danger|attack|fire|flood/i.test(text);
+  const hasMedical = /medical|doctor|hospital|health|sick|injured|hurt|pain|bleeding|breath/i.test(text);
+  const hasPolice = /police|crime|robbery|theft|attack|danger|break|weapon|violence/i.test(text);
+  const hasShelter = /shelter|house|home|building|roof|flood|fire|earthquake|evacuate/i.test(text);
+  
+  // Determine category
+  let category = 'shelter'; // default
+  if (hasMedical) category = 'medical';
+  else if (hasPolice) category = 'police';
+  else if (hasShelter) category = 'shelter';
+  
+  // Determine urgency
+  const urgency = hasEmergency ? 'emergency' : 'non_emergency';
+  
+  const keyword = `${urgency}_${category}`;
+  const { category: cat, urgency: urg } = mapKeywordToCategory(keyword);
+  
+  return {
+    key: keyword,
+    category: cat,
+    urgency: urg,
+    rawResponse: `[${keyword}] - AI classification unavailable, using basic fallback`,
+    usedFallback: true,
+  };
+};
+
+/**
+ * Analyzes text using Gemini AI (with simple fallback)
  * @param {String} userText - The text to analyze
  * @returns {Object} Classification result
  */
 const analyzeWithGemini = async (userText) => {
   try {
-    // Construct the prompt for Gemini
-    const customPrompt = `
-      Analyze the following user-submitted text.
-      User Text: "${userText}"
+    // Construct a clear prompt for Gemini to analyze naturally
+    const prompt = `You are an AI assistant for a disaster relief organization called DisAID.
 
-      Follow these instructions precisely:
-      1. Analyze the user's text.
-      2. Process the request. If it is unethical or contains abusive language towards any individual, asset, group, or company, your response must be only the keyword: [invalid].
-      3. If the situation described by the user is a non-emergency based on general understanding, classify it as Case I.
-      4. If the situation described is serious and requires immediate attention, classify it as Case II.
-      5. If it is Case I (non-emergency), further classify it into one of three sub-cases and return only the corresponding keyword: [non_emergency_shelter], [non_emergency_police], or [non_emergency_medical].
-      6. If it is Case II (emergency), further classify it into one of three sub-cases and return only the corresponding keyword: [emergency_shelter], [emergency_police], or [emergency_medical].
+Analyze this help request and classify it:
+"${userText}"
 
-      Your final output must be ONE of these exact keywords and nothing else:
-      [invalid], [non_emergency_shelter], [non_emergency_police], [non_emergency_medical], [emergency_shelter], [emergency_police], [emergency_medical]
-    `;
+Determine:
+1. Is this an EMERGENCY (life-threatening, immediate danger) or NON-EMERGENCY?
+2. What type of help is needed: MEDICAL, SHELTER, or POLICE?
 
-    // Call the Gemini API
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-    const result = await model.generateContent(customPrompt);
+Rules:
+- If unethical or abusive: return [invalid]
+- Emergency medical situations: return [emergency_medical]
+- Emergency shelter/rescue: return [emergency_shelter]
+- Emergency police/safety: return [emergency_police]
+- Non-urgent medical: return [non_emergency_medical]
+- Non-urgent shelter: return [non_emergency_shelter]
+- Non-urgent police: return [non_emergency_police]
+
+Respond with ONLY ONE keyword in brackets, nothing else.`;
+
+    // Call Gemini API
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const result = await model.generateContent(prompt);
     const response = await result.response;
     const analysisResultText = response.text();
 
-    // Extract the keyword from brackets e.g., "[emergency_police]" -> "emergency_police"
+    console.log('Gemini raw response:', analysisResultText);
+
+    // Extract the keyword from brackets
     const extractedKey = analysisResultText.match(/\[(.*?)\]/);
 
     if (extractedKey && extractedKey[1]) {
       const keyword = extractedKey[1];
       const { category, urgency } = mapKeywordToCategory(keyword);
       
+      console.log(`✅ Gemini classified as: ${keyword}`);
+      
       return {
-        keyword,
+        key: keyword,
         category,
         urgency,
         rawResponse: analysisResultText,
+        usedFallback: false,
       };
     } else {
-      console.error("Could not extract a valid key from Gemini response:", analysisResultText);
-      throw new Error("Could not determine a valid classification from the AI");
+      console.error("Could not extract keyword from Gemini response");
+      throw new Error("Invalid Gemini response format");
     }
 
   } catch (error) {
-    console.error("Error in Gemini analysis:", error);
-    throw error;
+    console.error("❌ Gemini API failed:", error.message);
+    console.log("Using simple fallback classifier...");
+    return analyzeWithFallback(userText);
   }
 };
 
@@ -94,11 +139,11 @@ const analyzeRequest = async (req, res) => {
 
     const result = await analyzeWithGemini(userText);
     
-    console.log(`Gemini analysis complete. Key: ${result.keyword}`);
+    console.log(`Gemini analysis complete. Key: ${result.key}`);
     
     // Send the result back to the frontend
     res.status(200).json({
-      key: result.keyword,
+      key: result.key,
       category: result.category,
       urgency: result.urgency,
     });
@@ -141,14 +186,14 @@ const processHelpRequest = async (helpRequestId) => {
     helpRequest.classification = {
       category: geminiResult.category,
       urgency: geminiResult.urgency,
-      keywords: extractKeywords(helpRequest.situation),
-      aiSummary: `Classified as ${geminiResult.keyword}: ${helpRequest.situation.substring(0, 100)}...`,
-      confidence: 0.90, // You can enhance this based on Gemini response
+      keywords: [],
+      aiSummary: `Classified as ${geminiResult.key}: ${helpRequest.situation.substring(0, 100)}...`,
+      confidence: geminiResult.usedFallback ? 0.75 : 0.95,
     };
     helpRequest.status = 'classified';
     await helpRequest.save();
 
-    console.log(`✅ Successfully processed help request ${helpRequestId} - ${geminiResult.keyword}`);
+    console.log(`✅ Successfully processed help request ${helpRequestId} - ${geminiResult.key}`);
     return helpRequest;
 
   } catch (error) {
@@ -201,34 +246,6 @@ const processPendingRequests = async () => {
     console.error('❌ Error processing pending requests:', error);
     throw error;
   }
-};
-
-/**
- * Helper function to extract keywords (simple version)
- * Replace with better NLP or Gemini-based extraction later
- */
-const extractKeywords = (text) => {
-  const commonWords = ['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'from', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'should', 'could', 'may', 'might', 'must', 'can', 'i', 'you', 'he', 'she', 'it', 'we', 'they', 'my', 'your', 'his', 'her', 'its', 'our', 'their', 'this', 'that', 'these', 'those'];
-  
-  const words = text
-    .toLowerCase()
-    .replace(/[^\w\s]/g, '')
-    .split(/\s+/)
-    .filter(word => word.length > 3 && !commonWords.includes(word));
-  
-  // Count word frequency
-  const frequency = {};
-  words.forEach(word => {
-    frequency[word] = (frequency[word] || 0) + 1;
-  });
-  
-  // Get top 5 most frequent words
-  const keywords = Object.entries(frequency)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5)
-    .map(entry => entry[0]);
-  
-  return keywords;
 };
 
 module.exports = {
